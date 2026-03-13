@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream:        #f5f0e8;
+      --warm-white:   #faf7f2;
+      --gray-purple:  #9b90a8;
+      --muted-purple: #b8aec8;
+      --deep-purple:  #6e6080;
+      --lavender:     #e8e3f0;
+      --text-dark:    #3d3545;
+      --text-mid:     #7a6e82;
+      --text-light:   #b0a8b8;
+      --border:       rgba(155,144,168,0.22);
+
+      --focus-color:  #6e6080;
+      --break-color:  #8fa8a0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      background: var(--warm-white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Background blobs */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 15% 15%, rgba(184,174,200,0.16) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 70% at 88% 82%, rgba(143,168,160,0.10) 0%, transparent 55%);
+      pointer-events: none;
+    }
+
+    .deco-circle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      border: 1px solid rgba(184,174,200,0.18);
+    }
+    .dc1 { width:380px; height:380px; top:-90px; left:-90px; animation: drift 20s ease-in-out infinite; }
+    .dc2 { width:240px; height:240px; bottom:-50px; right:-50px; animation: drift 26s ease-in-out infinite reverse; }
+    @keyframes drift {
+      0%,100% { transform: translate(0,0); }
+      50%      { transform: translate(10px,14px); }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(250,247,242,0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(184,174,200,0.3);
+      border-radius: 2px;
+      padding: 56px 64px 48px;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 4px 40px rgba(110,96,128,0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+      animation: fadeUp 1s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* Ornament */
+    .ornament {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 28px;
+    }
+    .orn-line { width:40px; height:1px; background: linear-gradient(to right, transparent, var(--muted-purple)); }
+    .orn-line.r { background: linear-gradient(to left, transparent, var(--muted-purple)); }
+    .orn-dot { width:4px; height:4px; border-radius:50%; background:var(--gray-purple); opacity:0.6; }
+
+    /* Title */
+    .pomodoro-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 32px;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+      letter-spacing: 0.02em;
+    }
+    .pomodoro-title em { font-style: italic; color: var(--deep-purple); }
+
+    .pomodoro-subtitle {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin-bottom: 40px;
+    }
+
+    /* Ring + display */
+    .ring-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 32px;
+    }
+
+    .ring-svg {
+      width: 200px;
+      height: 200px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: var(--lavender);
+      stroke-width: 4;
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: var(--focus-color);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 534;   /* 2π × 85 */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke 0.6s ease;
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .pomodoro-display {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 52px;
+      letter-spacing: 0.04em;
+      color: var(--text-dark);
+      line-height: 1;
+    }
+
+    .pomodoro-colon {
+      opacity: 0.5;
+      animation: blink 1s step-start infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 0.5; }
+      50%      { opacity: 0.15; }
+    }
+    .pomodoro-colon.paused { animation: none; opacity: 0.25; }
+
+    /* Mode + cycle */
+    .pomodoro-mode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .pomodoro-mode-label {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 400;
+      transition: all 0.5s ease;
+    }
+    .mode-focus {
+      background: rgba(110,96,128,0.1);
+      color: var(--deep-purple);
+      border: 1px solid rgba(110,96,128,0.2);
+    }
+    .mode-break {
+      background: rgba(143,168,160,0.12);
+      color: #4a7a72;
+      border: 1px solid rgba(143,168,160,0.28);
+    }
+
+    .pomodoro-cycle-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: var(--text-light);
+    }
+
+    /* Controls */
+    .pomodoro-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .btn-ctrl {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      padding: 10px 22px;
+      border-radius: 1px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: rgba(255,255,255,0.55);
+      color: var(--text-mid);
+      transition: all 0.25s ease;
+    }
+    .btn-ctrl:not(:disabled):hover {
+      background: var(--lavender);
+      border-color: var(--muted-purple);
+      color: var(--deep-purple);
+    }
+    .btn-ctrl:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .btn-ctrl.primary {
+      background: var(--deep-purple);
+      color: rgba(255,255,255,0.9);
+      border-color: var(--deep-purple);
+    }
+    .btn-ctrl.primary:not(:disabled):hover {
+      background: #5a4e6a;
+      border-color: #5a4e6a;
+      color: #fff;
+    }
+
+    /* Settings row */
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .settings-label {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--text-light);
+      text-transform: uppercase;
+    }
+    .settings-row select {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      color: var(--text-mid);
+      background: rgba(255,255,255,0.55);
+      border: 1px solid var(--border);
+      border-radius: 1px;
+      padding: 4px 8px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .settings-row select:focus { border-color: var(--muted-purple); }
+
+    /* Hint */
+    .pomodoro-hint {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--text-light);
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    /* Divider */
+    .divider {
+      width: 1px; height: 24px;
+      background: linear-gradient(to bottom, transparent, var(--muted-purple), transparent);
+      margin: 0 auto 22px;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--deep-purple); }
+
+    /* Flash overlay for session end */
+    .flash {
+      position: fixed; inset: 0;
+      background: rgba(184,174,200,0.25);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+    .flash.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="deco-circle dc1"></div>
+  <div class="deco-circle dc2"></div>
+  <div class="flash" id="flash"></div>
+
+  <section class="card pomodoro-card">
+
+    <div class="ornament">
+      <div class="orn-line"></div>
+      <div class="orn-dot"></div>
+      <div class="orn-line r"></div>
+    </div>
+
+    <h2 class="pomodoro-title"><em>Focus</em> Timer</h2>
+    <p class="pomodoro-subtitle">pomodoro · rest · repeat</p>
+
+    <!-- Ring progress + time display -->
+    <div class="ring-wrapper">
+      <svg class="ring-svg" viewBox="0 0 200 200">
+        <circle class="ring-track"    cx="100" cy="100" r="85"/>
+        <circle class="ring-progress" cx="100" cy="100" r="85" id="ringProgress"/>
+      </svg>
+      <div class="ring-center">
+        <div class="pomodoro-display">
+          <span id="pomodoro-minutes">25</span><span class="pomodoro-colon" id="colonEl">:</span><span id="pomodoro-seconds">00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode + cycle -->
+    <div class="pomodoro-mode">
+      <span class="pomodoro-mode-label mode-focus" id="pomodoro-mode-label">FOCUS</span>
+      <span class="pomodoro-cycle-label" id="pomodoro-cycle-label">Cycle 1</span>
+    </div>
+
+    <!-- Controls -->
+    <div class="pomodoro-controls">
+      <button class="btn-ctrl primary" id="pomodoro-start">Start</button>
+      <button class="btn-ctrl" id="pomodoro-pause"  disabled>Pause</button>
+      <button class="btn-ctrl" id="pomodoro-reset"  disabled>Reset</button>
+    </div>
+
+    <!-- Duration settings -->
+    <div class="settings-row">
+      <span class="settings-label">Focus</span>
+      <select id="focusDuration">
+        <option value="25" selected>25 min</option>
+        <option value="30">30 min</option>
+        <option value="45">45 min</option>
+        <option value="50">50 min</option>
+        <option value="60">60 min</option>
+      </select>
+      <span class="settings-label" style="margin-left:8px">Break</span>
+      <select id="breakDuration">
+        <option value="5" selected>5 min</option>
+        <option value="10">10 min</option>
+        <option value="15">15 min</option>
+      </select>
+    </div>
+
+    <p class="pomodoro-hint">
+      Focus结束后自动切 break，满 4 个 cycle 提醒休息 🌿
+    </p>
+
+    <div class="divider"></div>
+    <a href="index.html" class="back-link">← back to home</a>
+
+  </section>
+
+  <script>
+    // ── State ────────────────────────────────────────────
+    let FOCUS_SECS  = 25 * 60;
+    let BREAK_SECS  = 5  * 60;
+    const CIRCUMFERENCE = 2 * Math.PI * 85; // ≈ 534
+
+    let totalSecs   = FOCUS_SECS;
+    let remainSecs  = FOCUS_SECS;
+    let isRunning   = false;
+    let isFocus     = true;
+    let cycle       = 1;
+    let ticker      = null;
+
+    // ── Elements ─────────────────────────────────────────
+    const minsEl    = document.getElementById('pomodoro-minutes');
+    const secsEl    = document.getElementById('pomodoro-seconds');
+    const colonEl   = document.getElementById('colonEl');
+    const modeEl    = document.getElementById('pomodoro-mode-label');
+    const cycleEl   = document.getElementById('pomodoro-cycle-label');
+    const startBtn  = document.getElementById('pomodoro-start');
+    const pauseBtn  = document.getElementById('pomodoro-pause');
+    const resetBtn  = document.getElementById('pomodoro-reset');
+    const ring      = document.getElementById('ringProgress');
+    const flashEl   = document.getElementById('flash');
+    const focusSel  = document.getElementById('focusDuration');
+    const breakSel  = document.getElementById('breakDuration');
+
+    ring.style.strokeDasharray = CIRCUMFERENCE;
+
+    // ── Render ───────────────────────────────────────────
+    function render() {
+      const m = Math.floor(remainSecs / 60);
+      const s = remainSecs % 60;
+      minsEl.textContent = String(m).padStart(2, '0');
+      secsEl.textContent = String(s).padStart(2, '0');
+
+      // Ring: fill → depletes as time passes
+      const fraction = remainSecs / totalSecs;
+      const offset   = CIRCUMFERENCE * (1 - fraction);
+      ring.style.strokeDashoffset = offset;
+      ring.style.stroke = isFocus ? 'var(--focus-color)' : 'var(--break-color)';
+
+      modeEl.textContent = isFocus ? 'FOCUS' : 'BREAK';
+      modeEl.className   = 'pomodoro-mode-label ' + (isFocus ? 'mode-focus' : 'mode-break');
+      cycleEl.textContent = `Cycle ${cycle}`;
+    }
+
+    // ── Controls ─────────────────────────────────────────
+    startBtn.addEventListener('click', () => {
+      if (!isRunning) startTimer();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (isRunning) pauseTimer();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      resetTimer();
+    });
+
+    focusSel.addEventListener('change', () => {
+      if (!isRunning) {
+        FOCUS_SECS = parseInt(focusSel.value) * 60;
+        if (isFocus) { totalSecs = FOCUS_SECS; remainSecs = FOCUS_SECS; }
+        render();
+      }
+    });
+
+    breakSel.addEventListener('change', () => {
+      if (!isRunning) {
+        BREAK_SECS = parseInt(breakSel.value) * 60;
+        if (!isFocus) { totalSecs = BREAK_SECS; remainSecs = BREAK_SECS; }
+        render();
+      }
+    });
+
+    function startTimer() {
+      isRunning = true;
+      startBtn.disabled  = true;
+      pauseBtn.disabled  = false;
+      resetBtn.disabled  = false;
+      focusSel.disabled  = true;
+      breakSel.disabled  = true;
+      colonEl.classList.remove('paused');
+
+      ticker = setInterval(() => {
+        if (remainSecs <= 0) {
+          clearInterval(ticker);
+          sessionEnd();
+          return;
+        }
+        remainSecs--;
+        render();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(ticker);
+      startBtn.disabled  = false;
+      pauseBtn.disabled  = true;
+      colonEl.classList.add('paused');
+    }
+
+    function resetTimer() {
+      isRunning = false;
+      clearInterval(ticker);
+      isFocus    = true;
+      cycle      = 1;
+      FOCUS_SECS = parseInt(focusSel.value) * 60;
+      BREAK_SECS = parseInt(breakSel.value) * 60;
+      totalSecs  = FOCUS_SECS;
+      remainSecs = FOCUS_SECS;
+      startBtn.disabled  = false;
+      pauseBtn.disabled  = true;
+      resetBtn.disabled  = true;
+      focusSel.disabled  = false;
+      breakSel.disabled  = false;
+      colonEl.classList.remove('paused');
+      render();
+    }
+
+    function sessionEnd() {
+      isRunning = false;
+      flashScreen();
+
+      if (isFocus) {
+        // Focus → Break
+        isFocus    = false;
+        totalSecs  = BREAK_SECS;
+        remainSecs = BREAK_SECS;
+        notify('Break time! 🌿', `Cycle ${cycle} focus done. Rest for ${parseInt(breakSel.value)} min.`);
+      } else {
+        // Break → next Focus
+        isFocus = true;
+        cycle++;
+        totalSecs  = FOCUS_SECS;
+        remainSecs = FOCUS_SECS;
+        if (cycle > 4 && (cycle - 1) % 4 === 0) {
+          notify('Great work! ✦', `${cycle - 1} cycles done! Consider a longer break.`);
+        } else {
+          notify('Focus time 🎯', `Starting cycle ${cycle}. You've got this!`);
+        }
+      }
+
+      render();
+      startTimer(); // auto-start next session
+    }
+
+    function flashScreen() {
+      flashEl.classList.add('show');
+      setTimeout(() => flashEl.classList.remove('show'), 600);
+    }
+
+    function notify(title, body) {
+      if (Notification.permission === 'granted') {
+        new Notification(title, { body, icon: '' });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') new Notification(title, { body });
+        });
+      }
+    }
+
+    // ── Init ─────────────────────────────────────────────
+    render();
+  </script>
+</body>
+</html>
