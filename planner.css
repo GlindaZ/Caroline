@@ -9,9 +9,9 @@
   --muted-purple: #b8aec8;
   --deep-purple:  #6e6080;
   --lavender:     #e8e3f0;
-  --text-dark:    #3d3545;
-  --text-mid:     #7a6e82;
-  --text-light:   #b0a8b8;
+  --text-dark:    #372d41;
+  --text-mid:     #534563;
+  --text-light:   #7c6d8f;
   --border:       rgba(155,144,168,0.22);
 
   --meeting:  #a89cbb;
@@ -30,8 +30,8 @@ html, body {
   font-family: 'Jost', sans-serif;
   background: var(--warm-white);
   color: var(--text-dark);
-  font-size: 15px;          /* bumped up from 13px */
-  font-weight: 300;
+  font-size: 17px;          /* bumped up from 13px */
+  font-weight: 400;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -55,7 +55,7 @@ html, body {
 /* ── Sidebar ──────────────────────────────────────────── */
 .sidebar h1 {
   font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 24px;
   color: var(--deep-purple);
   line-height: 1.2;
@@ -64,7 +64,7 @@ html, body {
 .sidebar h1 em { font-style: italic; }
 
 .date {
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.1em;
   color: var(--text-light);
   margin-bottom: 24px;
@@ -79,8 +79,8 @@ html, body {
 
 button {
   font-family: 'Jost', sans-serif;
-  font-weight: 300;
-  font-size: 13px;
+  font-weight: 400;
+  font-size: 15px;
   letter-spacing: 0.08em;
   cursor: pointer;
   border: 1px solid var(--border);
@@ -101,7 +101,7 @@ button.danger { border-color: rgba(160,100,100,0.25); color: #a06060; }
 button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160,100,100,0.45); }
 
 .palette-title {
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-light);
@@ -119,7 +119,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   border-radius: 1px;
   background: rgba(255,255,255,0.45);
   cursor: grab;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.03em;
   color: var(--text-mid);
   transition: all 0.2s ease;
@@ -141,7 +141,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   align-items: center;
   gap: 6px;
   margin-top: 32px;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.08em;
   color: var(--text-light);
   text-decoration: none;
@@ -174,19 +174,19 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 }
 .planner-header h2 {
   font-family: 'Cormorant Garamond', serif;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 26px;
   color: var(--text-dark);
   margin-bottom: 4px;
 }
 .planner-header p {
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.06em;
   color: var(--text-light);
 }
 
 .pill {
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-light);
@@ -217,7 +217,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   padding-top: 6px;
   padding-right: 10px;
   justify-content: flex-end;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.05em;
   color: var(--text-light);
 }
@@ -259,14 +259,14 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 }
 
 .event-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.95);
   margin-bottom: 2px;
 }
 .event-note {
-  font-size: 12px;
+  font-size: 14px;
   color: rgba(255,255,255,0.75);
   white-space: pre-wrap;
   overflow: hidden;
@@ -274,7 +274,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 .event-time {
   position: absolute;
   bottom: 4px; right: 8px;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.04em;
   color: rgba(255,255,255,0.65);
 }
@@ -304,7 +304,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 }
 
 .editor-empty {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-light);
   letter-spacing: 0.05em;
   line-height: 1.8;
@@ -318,7 +318,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   margin-bottom: 18px;
 }
 .field label {
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-light);
@@ -328,7 +328,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 .field textarea {
   font-family: 'Jost', sans-serif;
   font-weight: 300;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-dark);
   background: rgba(255,255,255,0.6);
   border: 1px solid var(--border);
@@ -352,7 +352,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
 
 .footer-note {
   margin-top: 32px;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.04em;
   color: var(--text-light);
   line-height: 1.9;
@@ -420,18 +420,18 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
     padding: 18px 18px 16px;
   }
   .sidebar h1 { font-size: 22px; margin-bottom: 3px; }
-  .date { font-size: 13px; margin-bottom: 14px; }
+  .date { font-size: 15px; margin-bottom: 14px; }
 
   .top-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .top-actions button { flex: 1; min-width: 130px; font-size: 14px; padding: 12px 10px; }
+  .top-actions button { flex: 1; min-width: 130px; font-size: 16px; padding: 12px 10px; }
 
   .ornament-sep { margin: 12px 0; }
 
-  .palette-title { font-size: 12px; margin-bottom: 10px; }
+  .palette-title { font-size: 15px; margin-bottom: 10px; }
   .palette { flex-direction: row; flex-wrap: wrap; gap: 8px; }
-  .task-template { font-size: 14px; padding: 10px 14px; flex: 0 0 auto; }
+  .task-template { font-size: 16px; padding: 10px 14px; flex: 0 0 auto; }
 
-  .back-link { margin-top: 18px; font-size: 14px; }
+  .back-link { margin-top: 18px; font-size: 16px; }
 
   /* main planner */
   .panel.planner-shell {
@@ -446,7 +446,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
     gap: 8px;
   }
   .planner-header h2 { font-size: 22px; }
-  .planner-header p  { font-size: 13px; }
+  .planner-header p  { font-size: 15px; }
 
   .planner-body {
     overflow-y: visible;
@@ -455,7 +455,7 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   }
 
   .time-col { width: 58px; }
-  .time-slot { font-size: 12px; height: 80px; }
+  .time-slot { font-size: 14px; height: 80px; }
 
   .grid-wrap { min-height: calc(13 * 80px); }
   .hour-line { /* keep as-is */ }
@@ -463,13 +463,12 @@ button.danger:hover { background: rgba(160,100,100,0.08); border-color: rgba(160
   /* recalc pixel math via CSS var override on mobile */
   /* JS picks this up via HOUR_HEIGHT_MOBILE */
 
-  .event-title { font-size: 13px; }
-  .event-note  { font-size: 12px; }
-  .event-time  { font-size: 11px; }
+  .event-title { font-size: 15px; }
+  .event-note  { font-size: 14px; }
+  .event-time  { font-size: 13px; }
 
   /* hide desktop editor panel on mobile */
   .panel.editor { display: none; }
 
   /* show overlay editor instead */
-  .editor-overlay { display: block; }
-}
+  .editor-overlay { display: block; }}
